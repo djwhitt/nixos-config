@@ -1,0 +1,106 @@
+{
+  "nodes": {
+    "arweave": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1617473914,
+        "narHash": "sha256-PpgsDuL0u+ZkFNJbPZv7lztAn67oOJfKOBJsp90s06w=",
+        "owner": "djwhitt",
+        "repo": "nix-arweave-bin",
+        "rev": "5d292f11a047fe3244fe6772d32981a3fe12111b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "djwhitt",
+        "ref": "main",
+        "repo": "nix-arweave-bin",
+        "type": "github"
+      }
+    },
+    "desktopModules": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "narHash": "sha256-dp3MBXUSKCDaJ20b0E0SG8lAdOmrifOSoTZ94kcYS3w=",
+        "path": "/home/djwhitt/Work/nix-desktop-modules",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/djwhitt/Work/nix-desktop-modules",
+        "type": "path"
+      }
+    },
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1614513358,
+        "narHash": "sha256-LakhOx3S1dRjnh0b5Dg3mbZyH0ToC9I8Y2wKSkBaTzU=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "5466c5bbece17adaab2d82fae80b46e807611bf3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1617471739,
+        "narHash": "sha256-FRHt6Co1uE44uSlDPFvz1wb7/a7USChml7wxG3XBe5U=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "b5e8919e566d18ec4d6c2a6a2d698cc8f012f009",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1617559766,
+        "narHash": "sha256-nwtHMbLlgZ76AAkUKkbeWpPkgYzCetjkyJrZwZTICR8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "7d0ba0850fe9f0a520c6c8fb2f5db8f71f323627",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1616195052,
+        "narHash": "sha256-NEPifITZU/xgUbUCA+rD7TgYstLYY6cT+XXW2Kez5Po=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "941664919391c66997c08ee58a98af55eee32d50",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-20.09",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "arweave": "arweave",
+        "desktopModules": "desktopModules",
+        "nixpkgs": "nixpkgs_3"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
