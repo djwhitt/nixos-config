@@ -2,22 +2,21 @@
 
 stdenv.mkDerivation rec {
   name = "babashka-bin";
-  version = "0.1.3";
+  version = "0.3.6";
 
   src = fetchurl {
-    url = "https://github.com/borkdude/babashka/releases/download/v${version}/babashka-${version}-linux-amd64.zip";
-    sha256 = "0nldq063a1sfk0qnkd37dpw8jq43p4divn4j4qiif6dy1qz9xdcq";
+    url = "https://github.com/borkdude/babashka/releases/download/v${version}/babashka-${version}-linux-amd64.tar.gz";
+    sha256 = "sha256-KlfiaUTzBm4lzbkMrX41bnsI84yVbgchLL6y96XCmNE=";
   };
 
   nativeBuildInputs = [
     autoPatchelfHook
     stdenv.cc.cc.lib
-    unzip
     zlib
   ];
 
   unpackPhase = ''
-    unzip $src
+    tar -xzf $src
   '';
 
   installPhase = ''
