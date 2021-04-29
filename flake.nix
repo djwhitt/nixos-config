@@ -4,12 +4,9 @@
     arweave = {
       url = "github:djwhitt/nix-arweave-bin/main";
     };
-    desktopModules = {
-      url = "/home/djwhitt/Work/nix-desktop-modules";
-    };
   };
 
-  outputs = { self, nixpkgs, arweave, desktopModules }:
+  outputs = { self, nixpkgs, arweave }:
     let 
       overlay = final: prev: {
         arweave-bin = arweave.defaultPackage.${prev.system};
@@ -19,7 +16,6 @@
       nixosConfigurations.thinkpad = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [ 
-          #desktopModules.modules.test-module
           ./configuration.nix
 	  { nixpkgs.overlays = [ overlay ]; }
         ];

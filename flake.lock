@@ -20,20 +20,6 @@
         "type": "github"
       }
     },
-    "desktopModules": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_2"
-      },
-      "locked": {
-        "narHash": "sha256-dp3MBXUSKCDaJ20b0E0SG8lAdOmrifOSoTZ94kcYS3w=",
-        "path": "/home/djwhitt/Work/nix-desktop-modules",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/djwhitt/Work/nix-desktop-modules",
-        "type": "path"
-      }
-    },
     "flake-utils": {
       "locked": {
         "lastModified": 1614513358,
@@ -65,20 +51,6 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1617559766,
-        "narHash": "sha256-nwtHMbLlgZ76AAkUKkbeWpPkgYzCetjkyJrZwZTICR8=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "7d0ba0850fe9f0a520c6c8fb2f5db8f71f323627",
-        "type": "github"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
         "lastModified": 1616195052,
         "narHash": "sha256-NEPifITZU/xgUbUCA+rD7TgYstLYY6cT+XXW2Kez5Po=",
         "owner": "NixOS",
@@ -96,8 +68,7 @@
     "root": {
       "inputs": {
         "arweave": "arweave",
-        "desktopModules": "desktopModules",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_2"
       }
     }
   },

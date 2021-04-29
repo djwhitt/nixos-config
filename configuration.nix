@@ -135,7 +135,14 @@ in
     exportConfiguration = true;
 
     # Video
-    videoDrivers = [ "modesetting" ];
+    #videoDrivers = [ "modesetting" ];
+    #useGlamor = true;
+
+    videoDrivers = [ "intel" ];
+    deviceSection = ''
+      Option "DRI" "2"
+      Option "TearFree" "true"
+    '';
 
     # Keyboard
     layout = "us";
@@ -166,11 +173,11 @@ in
     windowManager.i3.enable = true;
   };
 
-  services.compton = {
-    enable = true;
-    backend = "glx";
-    vSync = true;
-  };
+  #services.picom = {
+  #  enable = true;
+  #  backend = "glx";
+  #  vSync = true;
+  #};
 
   services.syncthing = {
     enable = true;
