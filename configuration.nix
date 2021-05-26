@@ -7,7 +7,6 @@ let
   #unstable = import <unstable> { config.allowUnfree = true; };
 
   alohomora = import ./pkgs/alohomora.nix pkgs;
-  babashka-bin = import ./pkgs/babashka-bin.nix pkgs;
   clj-kondo-bin = import ./pkgs/clj-kondo-bin.nix pkgs;
 in
 {
@@ -225,7 +224,7 @@ in
     anki
     aumix
     awscli
-    babashka-bin
+    babashka-static-bin
     blueman
     #bluez-alsa
     brightnessctl

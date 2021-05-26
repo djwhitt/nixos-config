@@ -20,6 +20,24 @@
         "type": "github"
       }
     },
+    "babashka-static-bin": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1621813739,
+        "narHash": "sha256-PW+e9UWe4i823wxUf09ValpS6iioJPtY5k1y/M5cOdE=",
+        "owner": "djwhitt",
+        "repo": "nix-babahska-static-bin-pkg",
+        "rev": "11fa08220bfd7c3bb448d4d4999174475111f3f0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "djwhitt",
+        "repo": "nix-babahska-static-bin-pkg",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "locked": {
         "lastModified": 1614513358,
@@ -51,6 +69,20 @@
     },
     "nixpkgs_2": {
       "locked": {
+        "lastModified": 1621991853,
+        "narHash": "sha256-G2d6D94sPuhGw+V21TGcuYFN5v/qBucvWMiaVA5Buuc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "34fb933665525d84b3dc7e3813feda9e9c7b85fb",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1616195052,
         "narHash": "sha256-NEPifITZU/xgUbUCA+rD7TgYstLYY6cT+XXW2Kez5Po=",
         "owner": "NixOS",
@@ -68,7 +100,8 @@
     "root": {
       "inputs": {
         "arweave": "arweave",
-        "nixpkgs": "nixpkgs_2"
+        "babashka-static-bin": "babashka-static-bin",
+        "nixpkgs": "nixpkgs_3"
       }
     }
   },
