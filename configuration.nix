@@ -5,11 +5,11 @@
 { config, pkgs, ... }:
 let 
   #unstable = import <unstable> { config.allowUnfree = true; };
-
-  alohomora = import ./pkgs/alohomora.nix pkgs;
-  clj-kondo-bin = import ./pkgs/clj-kondo-bin.nix pkgs;
 in
 {
+  #############################################################################
+  ### Nix
+
   nix = {
     package = pkgs.nixFlakes;
     extraOptions = ''
@@ -17,43 +17,95 @@ in
     '';
   };
 
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./config/locale.nix
-      ./config/networking.nix
-      ./config/sound.nix
-      ./config/yubikey.nix
-    ];
-
-  boot.loader.grub = {
-    enable = true;
-    version = 2;
-    device = "/dev/sda";
-    #boot.loader.grub.extraConfig = ''
-    #  set check_signatures=no
-    #'';
-  };
-
-  boot.initrd.luks.devices = { "cryptroot" = { device = "/dev/sda2"; preLVM = true; }; };
-  boot.kernelPackages = pkgs.linuxPackages_latest;
-
   nixpkgs.config = {
     allowUnfree = true;
   };
 
-  hardware = {
-    bluetooth = {
-      enable = true;
-    };
+  #############################################################################
+  ### Imports
 
+  imports =
+    [ # Include the results of the hardware scan.
+      <nixos-hardware/dell/xps/13-9310>
+      ./hardware-configuration.nix
+      ./config/locale.nix
+      ./config/yubikey.nix
+    ];
+
+  #############################################################################
+  ### Boot
+
+  boot.loader.grub = {
+    enable = true;
+    version = 2;
+    device = "nodev";
+    efiSupport = true;
+  };
+
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  boot.initrd.luks.devices.luksroot = { 
+    device = "/dev/nvme0n1p2";
+    preLVM = true;
+    allowDiscards = true;
+  };
+
+  boot.kernelParams = [ "snd_hda_intel.dmic_detect=0" ];
+  
+  #############################################################################
+  ### Hardware
+
+  hardware = {
     enableAllFirmware = true;
 
+    bluetooth.enable = true;
+    ledger.enable = true;
     opengl = {
       driSupport32Bit = true;
       extraPackages = with pkgs; [ vaapiIntel libvdpau-va-gl vaapiVdpau intel-ocl ];
     };
   };
+
+  services.blueman.enable = true;
+  services.udev.packages = [ pkgs.trezor-udev-rules ];
+
+  #############################################################################
+  ### Networking
+
+  networking.hostName = "dell-xps-13-9310";
+  networking.networkmanager.enable = true;
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+
+  services.openssh.enable = true;
+  services.tailscale.enable = true;
+
+  #############################################################################
+  ### Sound
+
+  sound.enable = true;
+
+  # Enable RealtimeKit to reduce audio latency
+  security.rtkit.enable = true;
+
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    #jack.enable = true;
+  };
+
+  #############################################################################
+  ### Printing
+
+  services.printing = {
+    enable = true;
+    drivers = [ pkgs.brlaser ];
+  };
+
+  #############################################################################
+  ### Virtualization
 
   virtualisation = {
     docker = {
@@ -62,17 +114,16 @@ in
     };
   };
 
-  services.blueman.enable = true;
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
-  services.gnome3.gnome-keyring.enable = true;  
-  #services.gnome3.gnome-settings-daemon.enable = true;
-
-  #############################################################################
-  ### Networking
-
-  networking.hostName = "thinkpad";
-  networking.networkmanager.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns = true;
+  };
+  xdg.portal = {
+    enable = true;
+    # Wayland experimentation
+    #wlr.enable = true;
+    #gtkUsePortal = true;
+  };
 
   #############################################################################
   ### Users
@@ -85,35 +136,11 @@ in
     uid = 1000;
     home = "/home/djwhitt";
     shell = "/run/current-system/sw/bin/fish";
-    extraGroups = [ "audio" "docker" "jackaudio" "networkmanager" "wheel" ];
+    extraGroups = [ "audio" "docker" "jackaudio" "networkmanager" "video" "wheel" ];
   };
 
   #############################################################################
-  ### Programs and Packages
-
-  programs = {
-    chromium.enable = true;
-    gnupg.agent = {
-      enable = true;
-      enableSSHSupport = true;
-    };
-    java.enable = true;
-    mtr.enable = true;
-    seahorse.enable = true;
-    ssh.startAgent = false;
-    zsh.enable = true;
-    fish.enable = true;
-  };
-
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  # };
-  
-  services.lorri.enable = true;
-
-  #############################################################################
-  ### X
+  ### Desktop
   
   services.redshift = {
     enable = true;
@@ -121,36 +148,83 @@ in
     temperature.night = 3700;
   };
 
-  #services.clight = {
+  services.picom = {
+    enable = true;
+    backend = "glx";
+    vSync = true;
+    shadow = true;
+    shadowExclude = [
+      "!I3_FLOATING_WINDOW@:c && !class_g = 'Rofi' && !class_g = 'dmenu'"
+    ];
+    settings = {
+      use-ewmh-active-win = true;
+      unredir-if-possible = false;
+    };
+    experimentalBackends = true;
+  };
+
+  environment.variables = {
+    QT_SCALE_FACTOR = "2";
+    GDK_SCALE = "2";
+    GDK_DPI_SCALE = "0.5";
+    _JAVA_OPTIONS = "-Dsun.java2d.uiScale=2";
+  };
+  
+  # Wayland experimentation
+  #programs.sway = {
   #  enable = true;
-  #  settings = {
-  #    #ac_regression_points = [ 0.0 0.15 0.29 0.45 0.61 0.74 0.81 0.88 0.93 0.97 1.0 ];
-  #    ac_regression_points = [ 0.8 0.8 0.8 0.8 0.8 0.8 0.9 0.9 0.93 0.97 1.0 ];
-  #  };
+  #  wrapperFeatures.gtk = true; # so that gtk works properly
+  #  extraPackages = with pkgs; [
+  #    mako # notification daemon
+  #    swayidle
+  #    swaylock
+  #    waybar
+  #    wl-clipboard
+  #  ];
+  #  extraSessionCommands = ''
+  #    export XKB_DEFAULT_OPTIONS=ctrl:nocaps,
+  #  '';
   #};
 
   services.xserver = {
     enable = true;
     exportConfiguration = true;
 
-    # Video
-    #videoDrivers = [ "modesetting" ];
-    #useGlamor = true;
+    dpi = 235; 
 
-    videoDrivers = [ "intel" ];
+    # Video
+    videoDrivers = [ "modesetting" ];
+    useGlamor = true;
     deviceSection = ''
-      Option "DRI" "2"
-      Option "TearFree" "true"
+      Option "DRI" "3"
     '';
 
     # Keyboard
     layout = "us";
     xkbOptions = "ctrl:nocaps";
 
+    # Touchpad
+    libinput = {
+      enable = true;
+      touchpad = {
+      accelSpeed = "0.3";
+        disableWhileTyping = true;
+        tappingDragLock = false;
+      };
+    };
+
     displayManager = {
       defaultSession = "xfce+i3";
-      lightdm.enable = true;
       job.logToFile = true;
+      sddm.enable = true;
+      #lightdm = {
+      #  enable = true;
+      #  greeters.gtk.cursorTheme = {
+      #    name = "Vanilla-DMZ";
+      #    package = pkgs.vanilla-dmz;
+      #    size = 64;
+      #  };
+      #};
     };
 
     desktopManager = {
@@ -162,189 +236,132 @@ in
       };
     };
 
-    libinput = {
+    windowManager.i3 = {
       enable = true;
-      accelSpeed = "0.3";
-      disableWhileTyping = true;
-      tappingDragLock = false;
+      package = pkgs.i3-gaps;
     };
-
-    windowManager.i3.enable = true;
   };
 
-  #services.picom = {
-  #  enable = true;
-  #  backend = "glx";
-  #  vSync = true;
-  #};
+  services.gnome.gnome-keyring.enable = true;  
 
-  services.syncthing = {
+  #############################################################################
+  ### Backups
+
+  services.tarsnap = {
     enable = true;
-    user = "djwhitt";
-    group = "users";
-    dataDir = "/home/djwhitt";
-    configDir = "/home/djwhitt/.config/syncthing";   
-    openDefaultPorts = true;
+    archives = {
+      home = {
+        directories = [ "/home" ];
+        period = "*-*-* 20:00:00";
+        excludes = [
+          "*/node_modules/*"
+          "*/tmp/*"
+          "/home/*/.config/Slack/"
+          "/home/*/.config/chromium/"
+          "/home/*/.dbus/"
+          "/home/*/.gvfs/"
+          "/home/*/.steam/"
+          "/home/*/.wine/"
+          "/home/*/Work/strongpool/arweave"
+          "/home/*/Work/strongpool/strongpool-node/data"
+        ];
+      };
+
+      nixos = {
+        directories = [ "/etc/nixos" ];
+        period = "*-*-* 18:00:00";
+      };
+    };
+  };
+
+  systemd.services.tarsnap-home-expire = {
+    script = ''
+      /run/current-system/sw/bin/tarsnapper \
+        -o keyfile /root/tarsnap.key \
+        -o cachedir /var/cache/tarsnap/root-tarsnap.key \
+        --dateformat "%Y%m%d%H%M%S" \
+        --target "home-\$date" \
+        --deltas 1d 7d 30d 90d - expire
+    '';
+    wantedBy = [ "default.target" ];
+  };
+
+  systemd.timers.tarsnap-home-expire = {
+    timerConfig = {
+      Unit = "tarsnap-home-expire.service";
+      OnCalendar = "*-*-* 19:00:00";
+    };
+    wantedBy = [ "default.target" ];
+  };
+
+  systemd.services.tarsnap-nixos-expire = {
+    script = ''
+      /run/current-system/sw/bin/tarsnapper \
+        -o keyfile /root/tarsnap.key \
+        -o cachedir /var/cache/tarsnap/root-tarsnap.key \
+        --dateformat "%Y%m%d%H%M%S" \
+        --target "nixos-\$date" \
+        --deltas 1d 7d 30d 90d - expire
+    '';
+    wantedBy = [ "default.target" ];
+  };
+
+  systemd.timers.tarsnap-nixos-expire = {
+    timerConfig = {
+      Unit = "tarsnap-nixos-expire.service";
+      OnCalendar = "*-*-* 19:00:00";
+    };
+    wantedBy = [ "default.target" ];
   };
 
   #############################################################################
-  ### WireGuard
+  ### Programs and Packages
 
-  networking.firewall.allowedUDPPorts = [ 51820 ];
-
-  networking.firewall.trustedInterfaces = [ "wg0" ];
-
-  networking.nat = {
-    enable = true;
-    externalInterface = "eth0";
-    internalInterfaces = [ "wg0" ];
-  };
-
-  networking.wireguard.interfaces.wg0 = {
-    ips = [ "192.168.8.3/22" ];
-
-    # TODO: find a better location for private key
-    privateKeyFile = "/root/wireguard-keys/private";
-
-    peers = [
-      {
-        publicKey = "E5VNx3Qq0r9bZxYDM1A2TSaMV9Z2vZU6NMEwI/8r7Ec=";
-        allowedIPs = [ "192.168.8.0/22" ];
-        endpoint = "192.168.5.12:51820";
-        #endpoint = "vpn.spcom.org:51820";
-        persistentKeepalive = 25;
-      }
-    ];
+  programs = {
+    chromium.enable = true;
+    gnome-terminal.enable = true;
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+      pinentryFlavor = "gnome3";
+    };
+    fish.enable = true;
+    java.enable = true;
+    mtr.enable = true;
+    seahorse.enable = true;
+    slock.enable = true;
+    ssh.startAgent = false;
+    zsh.enable = true;
   };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    alohomora
-    anki
     aumix
-    awscli
-    babashka-static-bin
     blueman
-    #bluez-alsa
     brightnessctl
-    chromium
-    clj-kondo-bin
-    clojure
-    copyq
     dejavu_fonts
-    direnv
-    ditaa
-    drawio
-    evince
-    firefox
-    fish
-    flameshot
-    freecad
-    gcc
+    font-awesome
     git
-    git-lfs
-    gitAndTools.git-subrepo
-    gnome3.gnome-terminal
-    gnome3.seahorse
     gnumake
-    graphviz
     htop
-    #hugo
-    inetutils
     kitty
-    lastpass-cli
-    leafpad
-    leiningen
-    libreoffice
-    lorri
     lsof
     mosh
-    mr
-    mu
-    nodejs
-    offlineimap
-    openjdk11
-    pamix
-    pamixer
-    pinentry-gtk2
-    plantuml
+    parted
+    pciutils
     psmisc
     python
-    python38Packages.html2text
-    qjackctl
     rcm
-    ripgrep
-    silver-searcher
-    sqlite
-    steam
-    syncthing
-    texlive.combined.scheme-full
+    tarsnap
+    tarsnapper
     tmux
     tree
     unzip
     vim
     wget
-    wmctrl
-    xdotool
-    xorg.xev
-    xpad
-    arweave-bin
+    wine
   ];
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  #   pinentryFlavor = "gnome3";
-  # };
-
-  # List services that you want to enable:
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  services.nginx = {
-    enable = true;
-
-    virtualHosts."crux-dev" = {
-      locations."/" = {
-        proxyPass = "http://192.168.8.1:5000";
-	extraConfig = ''
-          if ($request_method = 'OPTIONS') {
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-            
-            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-            
-            add_header 'Access-Control-Max-Age' 1728000;
-            add_header 'Content-Type' 'text/plain; charset=utf-8';
-            add_header 'Content-Length' 0;
-            return 204;
-          }
-	  if ($request_method = 'POST') {
-	    add_header 'Access-Control-Allow-Origin' '*' always;
-	    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-	    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-	    add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
-	  }
-	  if ($request_method = 'GET') {
-	    add_header 'Access-Control-Allow-Origin' '*' always;
-	    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-	    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-	    add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
-	  }
-        '';
-      };
-    };
-  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -352,6 +369,6 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "20.03"; # Did you read the comment?
+  system.stateVersion = "20.09"; # Did you read the comment?
 }
 
