@@ -216,15 +216,18 @@ in
     displayManager = {
       defaultSession = "xfce+i3";
       job.logToFile = true;
-      sddm.enable = true;
-      #lightdm = {
-      #  enable = true;
-      #  greeters.gtk.cursorTheme = {
-      #    name = "Vanilla-DMZ";
-      #    package = pkgs.vanilla-dmz;
-      #    size = 64;
-      #  };
-      #};
+      lightdm = {
+        enable = true;
+        background = "#000000";
+        greeters.gtk = {
+          enable = true;
+          cursorTheme = {
+            name = "Vanilla-DMZ";
+            package = pkgs.vanilla-dmz;
+            size = 64;
+          };
+        };
+      };
     };
 
     desktopManager = {
