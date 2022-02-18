@@ -26,7 +26,6 @@ in
 
   imports =
     [ # Include the results of the hardware scan.
-      <nixos-hardware/dell/xps/13-9310>
       ./hardware-configuration.nix
       ./config/locale.nix
       ./config/yubikey.nix
@@ -62,7 +61,7 @@ in
     ledger.enable = true;
     opengl = {
       driSupport32Bit = true;
-      extraPackages = with pkgs; [ vaapiIntel libvdpau-va-gl vaapiVdpau intel-ocl ];
+      extraPackages = with pkgs; [ vaapiIntel libvdpau-va-gl vaapiVdpau ];
     };
   };
 
@@ -136,7 +135,7 @@ in
     uid = 1000;
     home = "/home/djwhitt";
     shell = "/run/current-system/sw/bin/fish";
-    extraGroups = [ "audio" "docker" "jackaudio" "networkmanager" "video" "wheel" ];
+    extraGroups = [ "audio" "docker" "networkmanager" "video" "wheel" ];
   };
 
   #############################################################################
@@ -340,7 +339,6 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    aumix
     blueman
     brightnessctl
     dejavu_fonts
