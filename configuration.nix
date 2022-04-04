@@ -151,10 +151,10 @@ in
     enable = true;
     backend = "glx";
     vSync = true;
-    shadow = true;
-    shadowExclude = [
-      "!I3_FLOATING_WINDOW@:c && !class_g = 'Rofi' && !class_g = 'dmenu'"
-    ];
+    #shadow = true;
+    #shadowExclude = [
+    #  "!I3_FLOATING_WINDOW@:c && !class_g = 'Rofi' && !class_g = 'dmenu'"
+    #];
     settings = {
       use-ewmh-active-win = true;
       unredir-if-possible = false;
@@ -184,6 +184,10 @@ in
   #    export XKB_DEFAULT_OPTIONS=ctrl:nocaps,
   #  '';
   #};
+  programs.evolution = {
+    enable = true; 
+    plugins = [ pkgs.evolution-ews ];
+  };
 
   services.xserver = {
     enable = true;
