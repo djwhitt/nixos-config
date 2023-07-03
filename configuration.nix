@@ -21,6 +21,14 @@ in
     allowUnfree = true;
   };
 
+  nixpkgs.overlays = [
+    (
+      self: super: {
+        falcon-sensor = super.callPackage ./overlays/falcon-sensor.nix { };
+      }
+    )
+  ];
+
   #############################################################################
   ### Imports
 
@@ -36,7 +44,6 @@ in
 
   boot.loader.grub = {
     enable = true;
-    version = 2;
     device = "nodev";
     efiSupport = true;
   };
@@ -65,16 +72,26 @@ in
     };
   };
 
-  services.blueman.enable = true;
+  #services.blueman.enable = true;
   services.udev.packages = [ pkgs.trezor-udev-rules ];
+  custom.falcon.enable = true;
 
   #############################################################################
   ### Networking
 
   networking.hostName = "dell-xps-13-9310";
   networking.networkmanager.enable = true;
+  networking.firewall.allowedTCPPorts = [ 3000 8081 8082 8280 8290 9630 ];
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
+  networking.extraHosts =
+    ''
+      127.0.0.2 test.ario.localhost
+      127.0.0.3 ardrive.ario.localhost
+      127.0.0.4 jonniesparkles.ario.localhost
+      127.0.0.5 guarding-the-gates_jonniesparkles.ario.localhost
+      127.0.0.6 mmyp6ptokua7mkjqhxzuakamkhbivosxq2ced63ldfvz5mgcfana.ario.localhost
+    '';
 
   services.openssh.enable = true;
   services.tailscale.enable = true;
@@ -92,16 +109,23 @@ in
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    #jack.enable = true;
+    jack.enable = true;
   };
 
   #############################################################################
-  ### Printing
+  ### Printing and Scanning
 
   services.printing = {
     enable = true;
     drivers = [ pkgs.brlaser ];
   };
+
+  hardware.sane = {
+    enable = true;
+    brscan5.enable = true;
+  };
+
+  services.saned.enable = true;
 
   #############################################################################
   ### Virtualization
@@ -117,11 +141,9 @@ in
     enable = true;
     nssmdns = true;
   };
+
   xdg.portal = {
     enable = true;
-    # Wayland experimentation
-    #wlr.enable = true;
-    #gtkUsePortal = true;
   };
 
   #############################################################################
@@ -141,54 +163,13 @@ in
   #############################################################################
   ### Desktop
   
-  services.redshift = {
-    enable = true;
-    temperature.day = 6200;
-    temperature.night = 3700;
-  };
-
-  services.picom = {
-    enable = true;
-    backend = "glx";
-    vSync = true;
-    #shadow = true;
-    #shadowExclude = [
-    #  "!I3_FLOATING_WINDOW@:c && !class_g = 'Rofi' && !class_g = 'dmenu'"
-    #];
-    settings = {
-      use-ewmh-active-win = true;
-      unredir-if-possible = false;
-    };
-    experimentalBackends = true;
-  };
-
-  environment.variables = {
-    QT_SCALE_FACTOR = "2";
-    GDK_SCALE = "2";
-    GDK_DPI_SCALE = "0.5";
-    _JAVA_OPTIONS = "-Dsun.java2d.uiScale=2";
-  };
-  
-  # Wayland experimentation
-  #programs.sway = {
-  #  enable = true;
-  #  wrapperFeatures.gtk = true; # so that gtk works properly
-  #  extraPackages = with pkgs; [
-  #    mako # notification daemon
-  #    swayidle
-  #    swaylock
-  #    waybar
-  #    wl-clipboard
-  #  ];
-  #  extraSessionCommands = ''
-  #    export XKB_DEFAULT_OPTIONS=ctrl:nocaps,
-  #  '';
+  #environment.variables = {
+  #  QT_SCALE_FACTOR = "2";
+  #  GDK_SCALE = "2";
+  #  GDK_DPI_SCALE = "0.5";
+  #  _JAVA_OPTIONS = "-Dsun.java2d.uiScale=2";
   #};
-  programs.evolution = {
-    enable = true; 
-    plugins = [ pkgs.evolution-ews ];
-  };
-
+  
   services.xserver = {
     enable = true;
     exportConfiguration = true;
@@ -197,7 +178,6 @@ in
 
     # Video
     videoDrivers = [ "modesetting" ];
-    useGlamor = true;
     deviceSection = ''
       Option "DRI" "3"
     '';
@@ -217,7 +197,7 @@ in
     };
 
     displayManager = {
-      defaultSession = "xfce+i3";
+      defaultSession = "plasma";
       job.logToFile = true;
       lightdm = {
         enable = true;
@@ -235,16 +215,9 @@ in
 
     desktopManager = {
       xterm.enable = false;
-      xfce = {
+      plasma5 = {
         enable = true;
-        noDesktop = true;
-        enableXfwm = false;
       };
-    };
-
-    windowManager.i3 = {
-      enable = true;
-      package = pkgs.i3-gaps;
     };
   };
 
@@ -257,25 +230,20 @@ in
     enable = true;
     archives = {
       home = {
-        directories = [ "/home" ];
-        period = "*-*-* 20:00:00";
-        excludes = [
-          "*/node_modules/*"
-          "*/tmp/*"
-          "/home/*/.config/Slack/"
-          "/home/*/.config/chromium/"
-          "/home/*/.dbus/"
-          "/home/*/.gvfs/"
-          "/home/*/.steam/"
-          "/home/*/.wine/"
-          "/home/*/Work/strongpool/arweave"
-          "/home/*/Work/strongpool/strongpool-node/data"
+        directories = [
+          "/home/djwhitt/.dotfiles"
+          "/home/djwhitt/.dotfiles-private"
+          "/home/djwhitt/.local/share/fish"
+          "/home/djwhitt/Documents"
+          "/home/djwhitt/Notes"
         ];
+        period = "*-*-* 00:00:00";
+        excludes = [];
       };
 
       nixos = {
         directories = [ "/etc/nixos" ];
-        period = "*-*-* 18:00:00";
+        period = "*-*-* 02:00:00";
       };
     };
   };
@@ -287,15 +255,16 @@ in
         -o cachedir /var/cache/tarsnap/root-tarsnap.key \
         --dateformat "%Y%m%d%H%M%S" \
         --target "home-\$date" \
-        --deltas 1d 7d 30d 90d - expire
+        --deltas 1d 7d - expire
     '';
+    # --deltas 1d 7d 30d 90d - expire
     wantedBy = [ "default.target" ];
   };
 
   systemd.timers.tarsnap-home-expire = {
     timerConfig = {
       Unit = "tarsnap-home-expire.service";
-      OnCalendar = "*-*-* 19:00:00";
+      OnCalendar = "*-*-* 04:00:00";
     };
     wantedBy = [ "default.target" ];
   };
@@ -315,7 +284,7 @@ in
   systemd.timers.tarsnap-nixos-expire = {
     timerConfig = {
       Unit = "tarsnap-nixos-expire.service";
-      OnCalendar = "*-*-* 19:00:00";
+      OnCalendar = "*-*-* 04:00:00";
     };
     wantedBy = [ "default.target" ];
   };
@@ -334,7 +303,7 @@ in
     fish.enable = true;
     java.enable = true;
     mtr.enable = true;
-    seahorse.enable = true;
+    #seahorse.enable = true;
     slock.enable = true;
     ssh.startAgent = false;
     zsh.enable = true;
@@ -343,20 +312,23 @@ in
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    appimage-run
     blueman
     brightnessctl
     dejavu_fonts
+    falcon-sensor
     font-awesome
+    fzf
     git
     gnumake
     htop
     kitty
+    libsForQt5.bismuth
     lsof
     mosh
     parted
     pciutils
     psmisc
-    python
     rcm
     tarsnap
     tarsnapper
@@ -366,6 +338,7 @@ in
     vim
     wget
     wine
+    zoom-us
   ];
 
   # This value determines the NixOS release from which the default
@@ -374,6 +347,6 @@ in
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "20.09"; # Did you read the comment?
+  system.stateVersion = "23.05"; # Did you read the comment?
 }
 

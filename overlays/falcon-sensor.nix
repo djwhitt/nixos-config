@@ -18,7 +18,7 @@ let
   # You need to get the binary from #it guys
   # mkdir -p /opt/CrowdStrikeDistro/
   # mv /tmp/falcon*.deb /opt/CrowdStrikeDistro/
-  src = /opt/CrowdStrikeDistro/falcon-sensor_6.47.0-14408_amd64.deb;
+  src = /opt/CrowdStrikeDistro/falcon-sensor_6.50.0-14712_amd64.deb;
   falcon-sensor = stdenv.mkDerivation {
     inherit arch src;
     name = pname;

@@ -1,5 +1,5 @@
 {
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/release-21.11;
+  inputs.nixpkgs.url = github:NixOS/nixpkgs/release-23.05;
   inputs.nixos-hardware.url = github:NixOS/nixos-hardware/master;
 
   outputs = { self, nixpkgs, nixos-hardware }: {
@@ -7,6 +7,7 @@
       system = "x86_64-linux";
       modules = [
         nixos-hardware.nixosModules.dell-xps-13-9310
+        ./modules/falcon-sensor.nix
         ./configuration.nix
       ];
     };

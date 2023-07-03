@@ -22,7 +22,7 @@
         /run/current-system/sw/bin/mkdir -p /opt/CrowdStrike
         /run/current-system/sw/bin/touch /var/log/falconctl.log
         ln -sf ${pkgs.falcon-sensor}/opt/CrowdStrike/* /opt/CrowdStrike
-        ${pkgs.falcon-sensor}/opt/CrowdStrike/falconctl -s -f --cid=""
+        ${pkgs.falcon-sensor}/opt/CrowdStrike/falconctl -s -f --cid="C9E43FA902644BA58469FB9CBE924AE7-10"
         ${pkgs.falcon-sensor}/bin/fs-bash -c "${pkgs.falcon-sensor}/opt/CrowdStrike/falconctl -g --cid"
       '';
     in
