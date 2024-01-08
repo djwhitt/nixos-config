@@ -235,10 +235,13 @@ in
           "/home/djwhitt/.dotfiles-private"
           "/home/djwhitt/.local/share/fish"
           "/home/djwhitt/Documents"
+          "/home/djwhitt/Media/.git"
           "/home/djwhitt/Notes"
         ];
         period = "*-*-* 00:00:00";
-        excludes = [];
+        excludes = [
+          "/home/djwhitt/Media/.git/annex/objects"
+        ];
       };
 
       nixos = {
@@ -290,6 +293,11 @@ in
   };
 
   #############################################################################
+  ### Databases
+
+  #services.clickhouse.enable = true;
+
+  #############################################################################
   ### Programs and Packages
 
   programs = {
@@ -326,6 +334,7 @@ in
     libsForQt5.bismuth
     lsof
     mosh
+    nfs-utils
     parted
     pciutils
     psmisc
