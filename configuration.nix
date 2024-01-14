@@ -237,6 +237,7 @@ in
           "/home/djwhitt/Documents"
           "/home/djwhitt/Media/.git"
           "/home/djwhitt/Notes"
+          "/home/djwhitt/Wiki"
         ];
         period = "*-*-* 00:00:00";
         excludes = [
